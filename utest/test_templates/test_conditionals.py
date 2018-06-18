@@ -18,21 +18,21 @@ class TestConditional(TestCase):
     def test_condition_is_false(self):
         cond = self._get_conditional()
         encoded = cond.encode({'foo.condition': 0}, None)
-        self.assertEquals(encoded.mycondition.exists, False)
+        self.assertEqual(encoded.mycondition.exists, False)
 
     def test_conditional_encode(self):
         cond = self._get_conditional()
         encoded = cond.encode({}, None)
-        self.assertEquals(encoded.mycondition.exists, True)
-        self.assertEquals(encoded.mycondition.myvalue.int, 42)
+        self.assertEqual(encoded.mycondition.exists, True)
+        self.assertEqual(encoded.mycondition.myvalue.int, 42)
 
     def test_conditional_decode(self):
         cond = self._get_conditional()
         decoded = cond.decode(to_bin('0x00004242'))
-        self.assertEquals(decoded.mycondition.exists, False)
+        self.assertEqual(decoded.mycondition.exists, False)
 
     def test_conditional_decode_has_element(self):
         cond = self._get_conditional()
         decoded = cond.decode(to_bin('0x0001 000a 0043'))
-        self.assertEquals(decoded.mycondition.exists, True)
-        self.assertEquals(decoded.mycondition.myvalue.int, 10)
+        self.assertEqual(decoded.mycondition.exists, True)
+        self.assertEqual(decoded.mycondition.myvalue.int, 10)

@@ -6,7 +6,7 @@ import sys
 class TestBagSize(TestCase):
 
     def test_free_size(self):
-        self._assert_min_max('*', 0, sys.maxint)
+        self._assert_min_max('*', 0, sys.maxsize)
 
     def test_fixed_size(self):
         self._assert_min_max('1', 1, 1)
@@ -29,5 +29,5 @@ class TestBagSize(TestCase):
 
     def _assert_min_max(self, pattern, min, max):
         s = BagSize(pattern)
-        self.assertEquals(s.min, min)
-        self.assertEquals(s.max, max)
+        self.assertEqual(s.min, min)
+        self.assertEqual(s.max, max)

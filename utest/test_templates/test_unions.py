@@ -11,7 +11,7 @@ class TestUnions(TestCase, WithValidation):
         union = UnionTemplate('Foo', 'foo', parent=None)
         for value in fields:
             union.add(value)
-        self.assertEquals(union.get_static_length(), length)
+        self.assertEqual(union.get_static_length(), length)
 
     def test_union_primitive_length(self):
         self._check_length(2, UInt(1, 'a', 1), UInt(2, 'b', 1))
@@ -36,19 +36,19 @@ class TestUnions(TestCase, WithValidation):
     def test_decode_union(self):
         union = self._get_foo_union()
         decoded = union.decode(to_bin('0xcafebabe'))
-        self.assertEquals(decoded.small.hex, '0xca')
-        self.assertEquals(decoded.medium.hex, '0xcafe')
-        self.assertEquals(decoded.large.hex, '0xcafebabe')
+        self.assertEqual(decoded.small.hex, '0xca')
+        self.assertEqual(decoded.medium.hex, '0xcafe')
+        self.assertEqual(decoded.large.hex, '0xcafebabe')
 
     def test_union_length(self):
         union = self._get_foo_union()
         decoded = union.decode(to_bin('0xcafebabe'))
-        self.assertEquals(4, len(decoded))
+        self.assertEqual(4, len(decoded))
 
     def test_get_bytes_from_decoded_union(self):
         union = self._get_foo_union()
         decoded = union.decode(to_bin('0xcafebabe'))
-        self.assertEquals(decoded._raw, to_bin('0xcafebabe'))
+        self.assertEqual(decoded._raw, to_bin('0xcafebabe'))
 
     def _get_foo_union(self):
         union = UnionTemplate('Foo', 'foo', parent=None)
@@ -60,12 +60,12 @@ class TestUnions(TestCase, WithValidation):
     def test_encode_union(self):
         union = self._get_foo_union()
         encoded = union.encode({'foo': 'medium'}, {})
-        self.assertEquals(encoded._raw, to_bin('0xf00d 0000'))
+        self.assertEqual(encoded._raw, to_bin('0xf00d 0000'))
 
     def test_encode_union_with_param(self):
         union = self._get_foo_union()
         encoded = union.encode({'foo': 'small', 'foo.small': '0xff'}, {})
-        self.assertEquals(encoded._raw, to_bin('0xff00 0000'))
+        self.assertEqual(encoded._raw, to_bin('0xff00 0000'))
 
     def test_encode_union_without_chosen_union_fails(self):
         union = self._get_foo_union()

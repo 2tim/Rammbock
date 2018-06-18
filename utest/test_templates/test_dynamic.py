@@ -29,9 +29,9 @@ class TestDynamicMessageTemplate(TestCase):
         tmp.add(UInt(1, 'len2', None))
         tmp.add(Char('len2', 'chars2', None))
         decoded = tmp.decode(to_bin('0x 04 6162 6364 02 6566'))
-        self.assertEquals(decoded.len.int, 4)
-        self.assertEquals(decoded.chars.ascii, 'abcd')
-        self.assertEquals(decoded.chars2.ascii, 'ef')
+        self.assertEqual(decoded.len.int, 4)
+        self.assertEqual(decoded.chars.ascii, 'abcd')
+        self.assertEqual(decoded.chars2.ascii, 'ef')
 
     def test_encode_dynamic_primitive_with_defined_value(self):
         tmp = MessageTemplate('Dymagic', self._protocol, {})
@@ -40,18 +40,18 @@ class TestDynamicMessageTemplate(TestCase):
         tmp.add(UInt(4, 'len2', None))
         tmp.add(Char('len2', 'chars2', 'ef'))
         encoded = tmp.encode({'len2': '6'}, {})
-        self.assertEquals(encoded.chars.ascii, 'abcd')
-        self.assertEquals(len(encoded.chars), 4)
-        self.assertEquals(encoded.chars2.ascii, 'ef')
-        self.assertEquals(len(encoded.chars2), 6)
+        self.assertEqual(encoded.chars.ascii, 'abcd')
+        self.assertEqual(len(encoded.chars), 4)
+        self.assertEqual(encoded.chars2.ascii, 'ef')
+        self.assertEqual(len(encoded.chars2), 6)
 
     def test_encode_dynamic_primitive_automatically(self):
         tmp = MessageTemplate('Dymagic', self._protocol, {})
         tmp.add(UInt(4, 'len', None))
         tmp.add(Char('len', 'chars', 'abcd'))
         encoded = tmp.encode({}, {})
-        self.assertEquals(encoded.chars.ascii, 'abcd')
-        self.assertEquals(encoded.len.int, 4)
+        self.assertEqual(encoded.chars.ascii, 'abcd')
+        self.assertEqual(encoded.len.int, 4)
 
     def test_decode_dynamic_list(self):
         tmp = MessageTemplate('Dymagic', self._protocol, {})
@@ -60,8 +60,8 @@ class TestDynamicMessageTemplate(TestCase):
         lst.add(UInt(1, 'bar', None))
         tmp.add(lst)
         decoded = tmp.decode(to_bin('0x 00 04 6162 6364'))
-        self.assertEquals(decoded.len.int, 4)
-        self.assertEquals(decoded.foo[0].hex, '0x61')
+        self.assertEqual(decoded.len.int, 4)
+        self.assertEqual(decoded.foo[0].hex, '0x61')
 
     def test_encode_dynamic_list(self):
         tmp = MessageTemplate('Dymagic', self._protocol, {})
@@ -70,7 +70,7 @@ class TestDynamicMessageTemplate(TestCase):
         lst.add(UInt(1, 'bar', 1))
         tmp.add(lst)
         encoded = tmp.encode({'len': 6}, {})
-        self.assertEquals(len(encoded.foo), 6)
+        self.assertEqual(len(encoded.foo), 6)
 
     def test_add_field_with_length_reference_to_parent(self):
         tmp = MessageTemplate('Dymagic', self._protocol, {})

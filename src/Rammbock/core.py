@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from __future__ import with_statement
+
 import copy
 from contextlib import contextmanager
 from .logger import logger
@@ -29,11 +29,9 @@ from .templates import (Protocol, UInt, Int, PDU, MessageTemplate, Char, Binary,
 from .binary_tools import to_0xhex, to_bin
 
 
-class RammbockCore(object):
+class RammbockCore(object, metaclass=SynchronizedType):
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-
-    __metaclass__ = SynchronizedType
 
     def __init__(self):
         self._init_caches()
@@ -451,7 +449,7 @@ class RammbockCore(object):
         | Save Template | MyMessage |
         | Save Template | MyOtherMessage | unlocked=True |
         """
-        if isinstance(unlocked, basestring):
+        if isinstance(unlocked, str):
             unlocked = unlocked.lower() != 'false'
         template = self._get_message_template()
         if not unlocked:
@@ -661,7 +659,7 @@ class RammbockCore(object):
             yield msg, message_fields, header_fields
             self._register_receive(node, self._current_container.name, name)
             logger.debug("Received %s" % repr(msg))
-        except AssertionError, e:
+        except AssertionError as e:
             self._register_receive(node, self._current_container.name, name, error=e.args[0])
             raise e
 
@@ -742,7 +740,7 @@ class RammbockCore(object):
         self._message_stack.append(StructTemplate(type, name, self._current_container, parameters, length=configs.get('length'), align=configs.get('align')))
 
     def _add_struct_name_to_params(self, name, parameters):
-        for param_key in parameters.keys():
+        for param_key in list(parameters.keys()):
             parameters[name + '.' + param_key] = parameters.pop(param_key)
 
     def end_struct(self):

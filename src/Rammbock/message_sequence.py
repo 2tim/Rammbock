@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from __future__ import with_statement
+
 import subprocess
 from .ordered_dict import OrderedDict
 from .logger import logger
@@ -56,7 +56,7 @@ class MessageSequence(object):
         row = (self._get_operator(sender_ip_name), self._operator(receiver_name, *receiver),
                msg_name(protocol, message_name), error, 'received')
         if self.is_named_operator(sender_ip_name):
-            for i in reversed(range(len(self.sequence))):
+            for i in reversed(list(range(len(self.sequence)))):
                 if self._matches(self.sequence[i], receiver, sender):
                     self.sequence[i] = row
                     return
@@ -68,7 +68,7 @@ class MessageSequence(object):
             msg[-1] == 'sent'
 
     def get_operators(self):
-        return (operator.name for operator in self.operators.values())
+        return (operator.name for operator in list(self.operators.values()))
 
     def get(self):
         return ((str(elem) for elem in row) for row in self.sequence)

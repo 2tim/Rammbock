@@ -79,7 +79,7 @@ class MessageStream(object):
         return getattr(mod, function)
 
     def _get_from_cache(self, template, fields, header_filter, latest):
-        indexes = range(len(self._cache))
+        indexes = list(range(len(self._cache)))
         for index in indexes if not latest else reversed(indexes):
             header, pdu = self._cache[index]
             if self._matches(header, fields, header_filter):
@@ -161,7 +161,7 @@ class MessageStream(object):
     def _call_handler_function(self, func, msg):
         func = self._get_call_handler(func)
         node, connection = self._get_node_and_connection()
-        args = func.func_code.co_argcount
+        args = func.__code__.co_argcount
         if args == 3:
             return func(self._protocol.library, msg, node)
         if args == 4:

@@ -99,7 +99,7 @@ class MockStream(object):
 class WithValidation(object):
 
     def _should_pass(self, validation):
-        self.assertEquals(validation, [])
+        self.assertEqual(validation, [])
 
     def _should_fail(self, validation, number_of_errors):
-        self.assertEquals(len(validation), number_of_errors)
+        self.assertEqual(len(validation), number_of_errors)

@@ -509,7 +509,7 @@ class BagSize(object):
         # TODO: add open range 2-n
         size = size.strip()
         if size == '*':
-            self._set_min_max(0, sys.maxint)
+            self._set_min_max(0, sys.maxsize)
         elif self.fixed.match(size):
             self._set_min_max(size, size)
         elif self.range.match(size):
@@ -526,6 +526,6 @@ class BagSize(object):
     def __str__(self):
         if self.min == self.max:
             return str(self.min)
-        elif self.min == 0 and self.max == sys.maxint:
+        elif self.min == 0 and self.max == sys.maxsize:
             return '*'
         return '%s-%s' % (self.min, self.max)

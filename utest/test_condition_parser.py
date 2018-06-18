@@ -21,7 +21,7 @@ class TestConditionParser(TestCase):
         parent = create_message(msg_param)
         conditionparser = ConditionParser(cond)
         condition = conditionparser.evaluate(parent)
-        self.assertEquals(condition, status)
+        self.assertEqual(condition, status)
 
     def condition_exception(self, cond):
         self.assertRaises(IllegalConditionException, ConditionParser, cond)

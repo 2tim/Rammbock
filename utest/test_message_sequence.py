@@ -56,10 +56,10 @@ class TestMessageSequence(TestCase):
 
     def _sequence_should_equal(self, seq_generator, expected):
         list_seq = [list(row) for row in seq_generator]
-        self.assertEquals(list_seq, expected)
+        self.assertEqual(list_seq, expected)
 
     def _operators_should_equal(self, operator_generator, expected):
-        self.assertEquals(list(operator_generator), expected)
+        self.assertEqual(list(operator_generator), expected)
 
 
 class TestSeqdiagGenerator(TestCase):
@@ -68,7 +68,7 @@ class TestSeqdiagGenerator(TestCase):
         self.generator = SeqdiagGenerator()
 
     def test_request_response(self):
-        self.assertEquals(self.generator.generate(['Sender', 'Receiver'],
+        self.assertEqual(self.generator.generate(['Sender', 'Receiver'],
                           [['Sender', 'Receiver', 'Protocol:Msg', '', 'received'],
                            ['Receiver', 'Sender', 'Protocol:Msg', '', 'received']]),
                           """diagram {
@@ -78,7 +78,7 @@ class TestSeqdiagGenerator(TestCase):
 """)
 
     def test_failure(self):
-        self.assertEquals(self.generator.generate(['Sender', 'Receiver'],
+        self.assertEqual(self.generator.generate(['Sender', 'Receiver'],
                           [['Sender', 'Receiver', 'Protocol:Msg', 'This failed', 'received']]),
                           """diagram {
     "Sender" -> "Receiver" [label = "Protocol:Msg - This failed", color = red];
@@ -86,7 +86,7 @@ class TestSeqdiagGenerator(TestCase):
 """)
 
     def test_several_operators(self):
-        self.assertEquals(self.generator.generate(['Client', 'Server', 'DB'],
+        self.assertEqual(self.generator.generate(['Client', 'Server', 'DB'],
                           [['Client', 'Server', 'Protocol:Req', '', 'received'],
                            ['Server', 'Client', 'Protocol:Resp', '', 'received'],
                            ['Client', 'DB', 'msg', '', 'received'],
@@ -104,7 +104,7 @@ class TestSeqdiagGenerator(TestCase):
 """)
 
     def test_cutoff_at_15_operations(self):
-        self.assertEquals(self.generator.generate(['Client', 'Server', 'DB'],
+        self.assertEqual(self.generator.generate(['Client', 'Server', 'DB'],
                           [['Client', 'Server', 'Protocol:Req', '', 'received'],
                            ['Server', 'Client', 'Protocol:Resp', '', 'received'],
                            ['Client', 'DB', 'msg', '', 'received'],

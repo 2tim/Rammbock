@@ -17,8 +17,8 @@ class TestProtocolMessageReceiving(TestCase):
     def test_read_header_and_pdu(self):
         stream = MockStream(to_bin('0xff0004cafe'))
         header, data = self._protocol.read(stream)
-        self.assertEquals(header.id.hex, '0xff')
-        self.assertEquals(data, '\xca\xfe')
+        self.assertEqual(header.id.hex, '0xff')
+        self.assertEqual(data, '\xca\xfe')
 
 
 class TestMessageStream(TestCase):
@@ -36,13 +36,13 @@ class TestMessageStream(TestCase):
 
     def test_get_message(self):
         msg = self._msg_stream.get(self._msg, header_filter='id')
-        self.assertEquals(msg.field_1.hex, '0xde')
+        self.assertEqual(msg.field_1.hex, '0xde')
 
     def test_get_message_from_cache(self):
         _ = self._msg_stream.get(self._msg, header_filter='id')
         self._msg.header_parameters = {'id': '0xdd'}
         msg = self._msg_stream.get(self._msg, header_filter='id')
-        self.assertEquals(msg.field_1.hex, '0xbe')
+        self.assertEqual(msg.field_1.hex, '0xbe')
 
     def test_empty_message_stream(self):
         _ = self._msg_stream.get(self._msg, header_filter='id')
@@ -61,11 +61,11 @@ class TestMessageStream(TestCase):
         _ = self._msg_stream.get(self._msg, header_filter='id')
         self._msg.header_parameters = {'id': '0xdd'}
         count = self._msg_stream.get_messages_count_in_cache()
-        self.assertEquals(count, 2)
+        self.assertEqual(count, 2)
 
     def test_get_messages_count_from_cache_three_messages(self):
         count = self._msg_stream.get_messages_count_in_cache()
-        self.assertEquals(count, 3)
+        self.assertEqual(count, 3)
 
 
 if __name__ == '__main__':

@@ -18,8 +18,8 @@ import re
 from Rammbock.message import (Field, Union, Message, Header, List, Struct,
                               BinaryContainer, BinaryField, TBCDContainer,
                               Conditional, Bag)
-from message_stream import MessageStream
-from primitives import Length, Binary, TBCD, BagSize
+from .message_stream import MessageStream
+from .primitives import Length, Binary, TBCD, BagSize
 from Rammbock.ordered_dict import OrderedDict
 from Rammbock.binary_tools import (to_binary_string_of_length, to_bin,
                                    to_tbcd_value, to_tbcd_binary)
@@ -36,7 +36,7 @@ class _Template(object):
         self._saved = False
 
     def _pretty_print_fields(self, fields):
-        return ', '.join('%s:%s' % (key, value) for key, value in fields.items())
+        return ', '.join('%s:%s' % (key, value) for key, value in list(fields.items()))
 
     def _mark_referenced_field(self, field):
         ref_field = self._get_field_recursive(field.length.field)
@@ -76,7 +76,7 @@ class _Template(object):
                 if self.parent else None
 
     def _check_params_empty(self, message_fields, name):
-        for key in message_fields.keys():
+        for key in list(message_fields.keys()):
             if key.startswith('*'):
                 message_fields.pop(key)
         if message_fields:
@@ -87,7 +87,7 @@ class _Template(object):
         return (self.parent._get_recursive_name() + "." if self.parent else '') + self.name
 
     def _encode_fields(self, struct, params, little_endian=False):
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             encoded = field.encode(params, struct, little_endian=little_endian)
             # TODO: clean away this ugly hack that makes it possible to skip PDU
             # (now it is a 0 length place holder in header)
@@ -98,14 +98,14 @@ class _Template(object):
     def decode(self, data, parent=None, name=None, little_endian=False):
         message = self._get_struct(name, parent)
         data_index = 0
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             message[field.name] = field.decode(data[data_index:], message, little_endian=little_endian)
             data_index += len(message[field.name])
         return message
 
     def validate(self, message, message_fields):
         errors = []
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             errors += field.validate(message, message_fields)
         self._check_params_empty(message_fields, self.name)
         return errors
@@ -113,7 +113,7 @@ class _Template(object):
     def _get_params_sub_tree(self, params, name=None):
         result = {'*': params['*']} if '*' in params else {}
         name = name or self.name
-        for key in params.keys():
+        for key in list(params.keys()):
             prefix, _, ending = key.partition('.')
             if prefix == name:
                 result[ending] = params.pop(key)
@@ -140,7 +140,7 @@ class Protocol(_Template):
 
     def header_length(self):
         try:
-            return sum(field.get_static_length() for field in self._fields.values() if field.type != 'pdu')
+            return sum(field.get_static_length() for field in list(self._fields.values()) if field.type != 'pdu')
         except IndexError:
             return -1
 
@@ -180,7 +180,7 @@ class Protocol(_Template):
         # used to stream
         data = stream.read(self.header_length(), timeout=timeout)
         header = Header(self.name)
-        unused_data = self._extract_values_from_data(data, header, self._fields.values())
+        unused_data = self._extract_values_from_data(data, header, list(self._fields.values()))
         stream.return_data(unused_data)
         pdu_bytes = None
         if self.pdu:
@@ -274,7 +274,7 @@ class StructTemplate(_Template):
         self.length = Length(length)
 
     def get_static_length(self):
-        return sum(field.get_static_length() for field in self._fields.values())
+        return sum(field.get_static_length() for field in list(self._fields.values()))
 
     def decode(self, data, parent=None, name=None, little_endian=False):
         if self.has_length:
@@ -312,7 +312,7 @@ class StructTemplate(_Template):
         return errors + _Template.validate(self, message, self._get_params_sub_tree(message_fields, name))
 
     def _add_struct_params(self, params):
-        for key in self._parameters.keys():
+        for key in list(self._parameters.keys()):
             params[key] = self._parameters.pop(key) if key not in params else params[key]
 
 
@@ -329,11 +329,11 @@ class UnionTemplate(_Template):
         self._fields[field.name] = field
 
     def get_static_length(self):
-        return max(field.get_static_length() for field in self._fields.values())
+        return max(field.get_static_length() for field in list(self._fields.values()))
 
     def decode(self, data, parent=None, name=None, little_endian=False):
         union = self._get_struct(name, parent)
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             union[field.name] = field.decode(data, union, little_endian=little_endian)
         return union
 
@@ -386,7 +386,7 @@ class BagTemplate(_Template):
         return bag
 
     def _decode_one(self, data, bag, little_endian=False):
-        for case in self._fields.values():
+        for case in list(self._fields.values()):
             try:
                 match = case.decode(data, bag, little_endian=little_endian)
                 logger.trace("'%s' matches in bag '%s'. value: %r" % (case.name, self.name, match[match.len - 1]))
@@ -398,7 +398,7 @@ class BagTemplate(_Template):
     def _get_struct(self, name, parent):
         bag = Bag(name or self.name)
         bag._parent = parent
-        for case in self._fields.values():
+        for case in list(self._fields.values()):
             bag[case.name] = case.get_message_object(bag)
         return bag
 
@@ -407,7 +407,7 @@ class BagTemplate(_Template):
         params_subtree = self._get_params_sub_tree(message_fields, name)
         bag = parent[name]
         errors = []
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             errors += field.validate(bag, params_subtree)
         return errors
 
@@ -423,7 +423,7 @@ class CaseTemplate(_Template):
 
     @property
     def field(self):
-        return self._fields.values()[0]
+        return list(self._fields.values())[0]
 
     def add(self, field):
         self.name = field.name
@@ -488,7 +488,7 @@ class ListTemplate(_Template):
 
     @property
     def field(self):
-        return self._fields.values()[0]
+        return list(self._fields.values())[0]
 
     def _get_struct(self, name=None, parent=None):
         ls = List(name or self.name, self.field.type)
@@ -520,7 +520,7 @@ class ListTemplate(_Template):
     def _get_params_sub_tree(self, params, name=None):
         result = OrderedDict({'*': params['*']} if '*' in params else {})
         name = name or self.name
-        for key in params.keys():
+        for key in list(params.keys()):
             self._consume_params_with_brackets(name, params, result, key)
             self._consume_dot_syntax(name, params, result, key)
         return result
@@ -557,7 +557,7 @@ class BinaryContainerTemplate(_Template):
 
     @property
     def binlength(self):
-        return sum(field.length.value for field in self._fields.values())
+        return sum(field.length.value for field in list(self._fields.values()))
 
     def verify(self):
         if self.binlength % 8:
@@ -574,7 +574,7 @@ class BinaryContainerTemplate(_Template):
             data = data[::-1]
         bin_str = to_binary_string_of_length(self.binlength, data[:self.binlength / 8])
         data_index = 2
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             container[field.name] = self._create_field(bin_str, data_index,
                                                        field)
             data_index += field.length.value
@@ -628,7 +628,7 @@ class TBCDContainerTemplate(_Template):
         container = self._get_struct(name, parent)
         a = to_tbcd_value(data)
         index = 0
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             field_length = field.length.decode(container, len(data) * 2 - index)
             container[field.name] = Field(field.type, field.name, to_tbcd_binary(a[index:index + field_length]))
             index += field_length
@@ -641,7 +641,7 @@ class TBCDContainerTemplate(_Template):
 
     @property
     def binlength(self):
-        length = sum(field.length.value for field in self._fields.values())
+        length = sum(field.length.value for field in list(self._fields.values()))
         return int(ceil(length / 2.0) * 8)
 
     def _get_struct(self, name, parent):

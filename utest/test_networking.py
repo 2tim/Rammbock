@@ -53,7 +53,7 @@ class _NetworkingTests(TestCase):
         self.assertTrue(time.time() - 0.5 < start_time)
 
     def _assert_receive(self, receiver, msg):
-        self.assertEquals(receiver.receive(), msg)
+        self.assertEqual(receiver.receive(), msg)
 
     def _udp_server_and_client(self, server_port, client_port, client_ip=LOCAL_IP, timeout=None):
         server = UDPServer(LOCAL_IP, server_port, timeout=timeout)
@@ -188,7 +188,7 @@ class TestNetworking(_NetworkingTests):
         server, client = self._udp_server_and_client(ports['SERVER_PORT'], ports['CLIENT_PORT'], timeout=0.1)
         t = Timer(0.2, client.send, args=['foofaa'])
         t.start()
-        self.assertEquals(server.receive(timeout='blocking'), 'foofaa')
+        self.assertEqual(server.receive(timeout='blocking'), 'foofaa')
 
     def test_empty_udp_stream(self):
         server, client = self._udp_server_and_client(ports['SERVER_PORT'], ports['CLIENT_PORT'], timeout=0.1)
@@ -206,18 +206,18 @@ class TestGetEndPoints(_NetworkingTests):
         server, client = self._udp_server_and_client(ports['SERVER_PORT'], ports['CLIENT_PORT'])
         client.send('foofaa')
         server.receive()
-        self.assertEquals(client.get_own_address(), (LOCAL_IP, ports['CLIENT_PORT']))
-        self.assertEquals(server.get_own_address(), (LOCAL_IP, ports['SERVER_PORT']))
-        self.assertEquals(client.get_peer_address(), (LOCAL_IP, ports['SERVER_PORT']))
-        self.assertEquals(server.get_peer_address(), (LOCAL_IP, ports['CLIENT_PORT']))
+        self.assertEqual(client.get_own_address(), (LOCAL_IP, ports['CLIENT_PORT']))
+        self.assertEqual(server.get_own_address(), (LOCAL_IP, ports['SERVER_PORT']))
+        self.assertEqual(client.get_peer_address(), (LOCAL_IP, ports['SERVER_PORT']))
+        self.assertEqual(server.get_peer_address(), (LOCAL_IP, ports['CLIENT_PORT']))
 
     def test_get_tcp_endpoints(self):
         server, client = self._tcp_server_and_client(ports['SERVER_PORT'])
         server.accept_connection()
         client_address = client.get_own_address()
-        self.assertEquals(server.get_own_address(), (LOCAL_IP, ports['SERVER_PORT']))
-        self.assertEquals(client.get_peer_address(), (LOCAL_IP, ports['SERVER_PORT']))
-        self.assertEquals(server.get_peer_address(), client_address)
+        self.assertEqual(server.get_own_address(), (LOCAL_IP, ports['SERVER_PORT']))
+        self.assertEqual(client.get_peer_address(), (LOCAL_IP, ports['SERVER_PORT']))
+        self.assertEqual(server.get_peer_address(), client_address)
 
 
 def _get_template():
@@ -236,7 +236,7 @@ class TestBufferedStream(TestCase):
         self._buffered_stream = BufferedStream(MockConnection(self.DATA), 0.1)
 
     def test_normal_read(self):
-        self.assertEquals(self.DATA, self._buffered_stream.read(len(self.DATA)))
+        self.assertEqual(self.DATA, self._buffered_stream.read(len(self.DATA)))
 
     def test_empty(self):
         self._buffered_stream.read(len('foobar'))
@@ -245,13 +245,13 @@ class TestBufferedStream(TestCase):
 
     def test_read_all(self):
         data = self._buffered_stream.read(-1)
-        self.assertEquals(data, self.DATA)
+        self.assertEqual(data, self.DATA)
 
     def test_read_and_return(self):
         self._buffered_stream.read(-1)
         self._buffered_stream.return_data('badaa')
         data = self._buffered_stream.read(-1)
-        self.assertEquals(data, 'badaa')
+        self.assertEqual(data, 'badaa')
 
 
 class MockConnection(object):

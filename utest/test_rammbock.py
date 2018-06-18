@@ -9,22 +9,22 @@ class TestParamParsing(TestCase):
 
     def test_create_three_dicts(self):
         confs, pdu_fields, header_fields = self.rammbock._parse_parameters(['foo=bar', 'doo:dar'])
-        self.assertEquals(confs['foo'], 'bar')
-        self.assertEquals(pdu_fields['doo'], 'dar')
+        self.assertEqual(confs['foo'], 'bar')
+        self.assertEqual(pdu_fields['doo'], 'dar')
 
     def test_use_shortest_name(self):
         confs, pdu_fields, header_fields = self.rammbock._parse_parameters(['foo=this=is:config=value', 'doo:this=is:field'])
-        self.assertEquals(confs['foo'], 'this=is:config=value')
-        self.assertEquals(pdu_fields['doo'], 'this=is:field')
+        self.assertEqual(confs['foo'], 'this=is:config=value')
+        self.assertEqual(pdu_fields['doo'], 'this=is:field')
 
     def test_error_on_invalid_value(self):
         self.assertRaises(Exception, self.rammbock._parse_parameters, ['foo'])
 
     def test_parse_header_fields(self):
         confs, pdus, headers = self.rammbock._parse_parameters(['header:poo', 'header:doo:dar', 'header:foo:bar'])
-        self.assertEquals(headers['doo'], 'dar')
-        self.assertEquals(headers['foo'], 'bar')
-        self.assertEquals(pdus['header'], 'poo')
+        self.assertEqual(headers['doo'], 'dar')
+        self.assertEqual(headers['foo'], 'bar')
+        self.assertEqual(pdus['header'], 'poo')
 
 
 LOCAL_IP = '127.0.0.1'
@@ -95,7 +95,7 @@ class TestMessageSequence(TestCase):
 
     def _sequence_should_equal(self, seq_generator, expected):
         list_seq = [list(row) for row in seq_generator]
-        self.assertEquals(list_seq, expected)
+        self.assertEqual(list_seq, expected)
 
 
 if __name__ == "__main__":

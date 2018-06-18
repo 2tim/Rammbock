@@ -41,7 +41,7 @@ class TestBinaryContainerTemplate(TestCase):
         self.assertEqual(1, decoded.oneBit.int)
         self.assertEqual(1, decoded.threeBits.int)
         self.assertEqual(1, decoded.twelveBits.int)
-        self.assertEquals(decoded._raw, to_bin("0x0190"))
+        self.assertEqual(decoded._raw, to_bin("0x0190"))
 
     def test_encode_little_endian_container(self):
         container = self._2_byte_container()
@@ -49,7 +49,7 @@ class TestBinaryContainerTemplate(TestCase):
         self.assertEqual(1, encoded.oneBit.int)
         self.assertEqual(1, encoded.threeBits.int)
         self.assertEqual(1, encoded.twelveBits.int)
-        self.assertEquals(encoded._raw, to_bin("0x0190"))
+        self.assertEqual(encoded._raw, to_bin("0x0190"))
 
     def test_decode_longer_data_than_field(self):
         container = self._1_byte_container()

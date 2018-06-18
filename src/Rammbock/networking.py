@@ -51,9 +51,7 @@ class _WithTimeouts(object):
         self._default_timeout = self._get_timeout(timeout)
 
 
-class _NetworkNode(_WithTimeouts):
-
-    __metaclass__ = SynchronizedType
+class _NetworkNode(_WithTimeouts, metaclass=SynchronizedType):
 
     _message_stream = None
     parent = None
@@ -190,7 +188,7 @@ class _Server(_NetworkNode):
     def _bind_socket(self):
         try:
             self._socket.bind((self._ip, self._port))
-        except socket.error, e:
+        except socket.error as e:
             raise Exception("error: [Errno %d] %s for address %s:%d" % (e[0], e[1], self._ip, self._port))
         self._is_connected = True
 
@@ -382,7 +380,7 @@ class _NamedCache(object):
         return self.get_with_name(name)[0]
 
     def __iter__(self):
-        return self._cache.itervalues()
+        return iter(self._cache.values())
 
     def set_current(self, name):
         if name in self._cache:

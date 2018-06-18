@@ -28,17 +28,17 @@ class _StructuredElement(object):
         self._parent = None
 
     def __setitem__(self, name, child):
-        self._fields[unicode(name)] = child
+        self._fields[str(name)] = child
         child._parent = self
 
     def __getitem__(self, name):
-        return self._fields[unicode(name)]
+        return self._fields[str(name)]
 
     def __getattr__(self, name):
         return self[name]
 
     def __delitem__(self, name):
-        name = unicode(name)
+        name = str(name)
         item = self._fields[name]
         del self._fields[name]
         item._parent = None
@@ -48,12 +48,12 @@ class _StructuredElement(object):
 
     def __repr__(self):
         result = '%s\n' % str(self._get_name())
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             result += self._format_indented('%s' % repr(field))
         return result
 
     def __contains__(self, key):
-        return unicode(key) in self._fields
+        return str(key) in self._fields
 
     def _format_indented(self, text):
         return ''.join(['  %s\n' % line for line in text.splitlines()])
@@ -66,12 +66,12 @@ class _StructuredElement(object):
         return '%s %s' % (self._type, self._name)
 
     def _get_raw_bytes(self):
-        return ''.join((field._raw for field in self._fields.values()))
+        return ''.join((field._raw for field in list(self._fields.values())))
 
     def __len__(self):
-        return sum(len(field) for field in self._fields.values())
+        return sum(len(field) for field in list(self._fields.values()))
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     def _get_recursive_name(self):
@@ -112,7 +112,7 @@ class Bag(_StructuredElement):
 
     @property
     def len(self):
-        return sum(field.len for field in self._fields.values())
+        return sum(field.len for field in list(self._fields.values()))
 
 
 class Struct(_StructuredElement):
@@ -127,14 +127,14 @@ class Struct(_StructuredElement):
         self._align = align
 
     def __len__(self):
-        result = sum(len(field) for field in self._fields.values())
+        result = sum(len(field) for field in list(self._fields.values()))
         return self._get_aligned(result)
 
     def _get_aligned(self, length):
         return length + (self._align - length % self._align) % self._align
 
     def _get_raw_bytes(self):
-        result = ''.join((field._raw for field in self._fields.values()))
+        result = ''.join((field._raw for field in list(self._fields.values())))
         return result.ljust(self._get_aligned(len(result)), '\x00')
 
 
@@ -148,7 +148,7 @@ class Union(_StructuredElement):
 
     def _get_raw_bytes(self):
         max_raw = ''
-        for field in self._fields.values():
+        for field in list(self._fields.values()):
             if len(field._raw) > len(max_raw):
                 max_raw = field._raw
         return max_raw.ljust(self._length, '\x00')
@@ -166,14 +166,14 @@ class BinaryContainer(_StructuredElement):
         _StructuredElement.__init__(self, name)
 
     def _binlength(self):
-        return sum(field.binlength for field in self._fields.values())
+        return sum(field.binlength for field in list(self._fields.values()))
 
     def __len__(self):
         return self._binlength() / 8
 
     def _get_raw_bytes(self):
         # TODO: faster implementation...
-        result = to_bin_of_length(len(self), ' '.join((field.bin for field in self._fields.values())))
+        result = to_bin_of_length(len(self), ' '.join((field.bin for field in list(self._fields.values()))))
         if self._little_endian:
             return result[::-1]
         return result
@@ -184,10 +184,10 @@ class TBCDContainer(BinaryContainer):
     _type = 'TBCDContainer'
 
     def _get_raw_bytes(self):
-        return to_tbcd_binary("".join(field.tbcd for field in self._fields.values()))
+        return to_tbcd_binary("".join(field.tbcd for field in list(self._fields.values())))
 
     def __len__(self):
-        return int(ceil(sum(len(field.tbcd) for field in self._fields.values()) / 2.0))
+        return int(ceil(sum(len(field.tbcd) for field in list(self._fields.values())) / 2.0))
 
 
 class Conditional(_StructuredElement):
@@ -267,7 +267,7 @@ class Field(object):
     def __hex__(self):
         return to_0xhex(self._value)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     @property
